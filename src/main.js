@@ -3,6 +3,8 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 
+// 引入全局样式文件
+import './style/index.less'
 Vue.config.productionTip = false
 
 new Vue({
