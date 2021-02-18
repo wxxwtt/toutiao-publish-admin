@@ -43,7 +43,7 @@ router.beforeEach((to, from, next) => {
     if (user) {
       next()
     } else {
-      router.push('/login')
+      next('/login')
     }
   } else {
     next()
