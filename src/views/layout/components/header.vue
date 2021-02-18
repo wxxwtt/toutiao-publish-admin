@@ -13,7 +13,7 @@
       </div>
       <el-dropdown-menu slot="dropdown">
         <el-dropdown-item>设置</el-dropdown-item>
-        <el-dropdown-item>退出</el-dropdown-item>
+        <el-dropdown-item @click.native="logout">退出</el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
   </div>
@@ -52,7 +52,23 @@ export default {
     },
     handleCollapse () {
       this.$emit('handleCollapse')
+    },
+    logout () {
+      this.$confirm('确定退出吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$message({
+          type: 'success',
+          message: '退出成功!'
+        })
+        localStorage.removeItem('user')
+        this.$router.replace({ name: 'login' })
+      }).catch(() => {
+      })
     }
+
   }
 }
 </script>
