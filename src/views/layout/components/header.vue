@@ -3,7 +3,7 @@
     <div>
       <i :class="{'el-icon-s-fold': !collapse, 'el-icon-s-unfold': collapse}"
        @click="handleCollapse"></i>
-      <span>江苏传智播客科技教育有限公司</span>
+      <span>头条管理系统</span>
     </div>
     <el-dropdown>
       <div class="avatar-wrap">

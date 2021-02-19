@@ -12,28 +12,28 @@
       <!-- 数据筛选表单 -->
       <el-form ref="form" :model="form" label-width="40px" size="mini">
         <el-form-item label="状态">
-          <el-radio-group v-model="form.resource">
-            <el-radio label="全部"></el-radio>
-            <el-radio label="草稿"></el-radio>
-            <el-radio label="待审核"></el-radio>
-            <el-radio label="审核通过"></el-radio>
-            <el-radio label="审核失败"></el-radio>
-            <el-radio label="已删除"></el-radio>
+          <el-radio-group v-model="status">
+            <el-radio :label="null">全部</el-radio>
+            <el-radio :label="0">草稿</el-radio>
+            <el-radio :label="1">待审核</el-radio>
+            <el-radio :label="2">审核通过</el-radio>
+            <el-radio :label="3">审核失败</el-radio>
+            <el-radio :label="4">已删除</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="频道">
-          <el-select v-model="form.region" placeholder="请选择频道">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
+          <el-select v-model="channel_id" placeholder="请选择频道">
+            <el-option label="全部" :value="null"></el-option>
+            <el-option v-for="item in channels" :key="item.id" :label="item.name" :value="item.id"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="日期">
           <el-date-picker
             v-model="form.date1"
-            type="datetimerange"
+            type="daterange"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
-            :default-time="['12:00:00']">
+            >
           </el-date-picker>
         </el-form-item>
         <el-form-item>
@@ -45,7 +45,7 @@
 
     <el-card class="box-card">
       <div slot="header" class="clearfix">
-        根据筛选条件共查询到 46147 条结果：
+        根据筛选条件共查询到 {{ total }} 条结果：
       </div>
       <!-- 数据列表 -->
       <el-table
@@ -58,7 +58,18 @@
         <el-table-column
           prop="date"
           label="封面"
-          width="180">
+          width="100">
+          <template slot-scope="scope">
+            <el-image
+              style="width: 100px;height: 100px;"
+             :src="scope.row.cover.images[0]"
+             fit="cover"
+             lazy >
+              <div slot="error" class="image-slot">
+                <i class="el-icon-picture" />
+              </div>
+            </el-image>
+          </template>
         </el-table-column>
         <el-table-column
           prop="title"
@@ -66,8 +77,12 @@
           width="180">
         </el-table-column>
         <el-table-column
-          prop="address"
           label="状态">
+          <template slot-scope="scope">
+              <el-tag :type="articleStatus[scope.row.status].type">
+                {{ articleStatus[scope.row.status].text }}
+              </el-tag>
+          </template>
         </el-table-column>
         <el-table-column
           prop="pubdate"
@@ -87,7 +102,9 @@
       <el-pagination
         layout="prev, pager, next"
         background
-        :total="total">
+        :total="total"
+        :page-size="per_page"
+        @current-change="pageChange">
       </el-pagination>
       <!-- /列表分页 -->
     </el-card>
@@ -95,7 +112,7 @@
 </template>
 
 <script>
-import { getArticles } from '@/api/article'
+import { getArticles, getChannels } from '@/api/article'
 export default {
   name: 'ArticleIndex',
   components: {},
@@ -113,27 +130,53 @@ export default {
         desc: ''
       },
       articles: [], // 文章列表,
-      total: 0 // 总条数
+      articleStatus: [
+        { status: 0, text: '草稿', type: 'info' }, // 0
+        { status: 1, text: '待审核', type: '' }, // 1
+        { status: 2, text: '审核通过', type: 'success' }, // 2
+        { status: 3, text: '审核失败', type: 'warning' }, // 3
+        { status: 4, text: '已删除', type: 'danger' } // 4
+      ],
+      total: 0, // 总条数,
+      per_page: 20, // 每页条数,
+      status: null, // 状态
+      channels: [],
+      channel_id: null // 频道id
     }
   },
   computed: {},
   watch: {},
   created () {
     this.loadArticles()
+    this.loadChannels()
   },
   mounted () {},
   methods: {
     onSubmit () {
-      console.log('submit!')
+      this.loadArticles(1)
     },
-    loadArticles () {
-      getArticles().then(res => {
+    loadArticles (page = 1) {
+      getArticles({
+        page,
+        per_page: this.per_page,
+        status: this.status,
+        channel_id: this.channel_id
+      }).then(res => {
         this.articles = res.data.data.results
         this.total = res.data.data.total_count
       }).catch(error => {
         console.log(error)
       })
+    },
+    pageChange (page) {
+      this.loadArticles(page)
+    },
+    loadChannels () {
+      getChannels().then(res => {
+        this.channels = res.data.data.channels
+      })
     }
+
   }
 }
 </script>
@@ -145,5 +188,8 @@ export default {
 
 .list-table {
   margin-bottom: 20px;
+}
+.el-icon-picture {
+  font-size: 100px;
 }
 </style>
