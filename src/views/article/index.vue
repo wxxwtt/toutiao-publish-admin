@@ -29,7 +29,9 @@
         </el-form-item>
         <el-form-item label="日期">
           <el-date-picker
-            v-model="form.date1"
+            v-model="rangeDate"
+            format="yyyy-MM-dd"
+            value-format="yyyy-MM-dd"
             type="daterange"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
@@ -37,7 +39,7 @@
           </el-date-picker>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmit">查询</el-button>
+          <el-button :disabled="loading" type="primary" @click="onSubmit">查询</el-button>
         </el-form-item>
       </el-form>
       <!-- /数据筛选表单 -->
@@ -49,6 +51,7 @@
       </div>
       <!-- 数据列表 -->
       <el-table
+        v-loading="loading"
         :data="articles"
         stripe
         style="width: 100%"
@@ -58,10 +61,10 @@
         <el-table-column
           prop="date"
           label="封面"
-          width="100">
+          width="80">
           <template slot-scope="scope">
             <el-image
-              style="width: 100px;height: 100px;"
+             style="width: 80px;height: 80px;"
              :src="scope.row.cover.images[0]"
              fit="cover"
              lazy >
@@ -90,9 +93,14 @@
         </el-table-column>
         <el-table-column
           label="操作">
-          <template>
+          <template slot-scope="scope">
             <el-button type="primary" icon="el-icon-edit" circle></el-button>
-            <el-button type="danger" icon="el-icon-delete" circle></el-button>
+            <el-button
+              type="danger"
+              icon="el-icon-delete"
+              circle
+              @click="delArticle(scope.row.id)"
+              ></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -104,6 +112,8 @@
         background
         :total="total"
         :page-size="per_page"
+        :disabled="loading"
+        :current-page.sync="page"
         @current-change="pageChange">
       </el-pagination>
       <!-- /列表分页 -->
@@ -112,7 +122,7 @@
 </template>
 
 <script>
-import { getArticles, getChannels } from '@/api/article'
+import { getArticles, getChannels, delArticlesById } from '@/api/article'
 export default {
   name: 'ArticleIndex',
   components: {},
@@ -138,10 +148,13 @@ export default {
         { status: 4, text: '已删除', type: 'danger' } // 4
       ],
       total: 0, // 总条数,
-      per_page: 20, // 每页条数,
+      page: 1,
+      per_page: 10, // 每页条数,
       status: null, // 状态
       channels: [],
-      channel_id: null // 频道id
+      channel_id: null, // 频道id
+      loading: false, // 加载状态
+      rangeDate: []
     }
   },
   computed: {},
@@ -156,15 +169,20 @@ export default {
       this.loadArticles(1)
     },
     loadArticles (page = 1) {
+      this.loading = true
       getArticles({
         page,
         per_page: this.per_page,
         status: this.status,
-        channel_id: this.channel_id
+        channel_id: this.channel_id,
+        begin_pubdate: this.rangeDate && this.rangeDate[0],
+        end_pubdate: this.rangeDate && this.rangeDate[1]
       }).then(res => {
+        this.loading = false
         this.articles = res.data.data.results
         this.total = res.data.data.total_count
       }).catch(error => {
+        this.loading = false
         console.log(error)
       })
     },
@@ -174,6 +192,26 @@ export default {
     loadChannels () {
       getChannels().then(res => {
         this.channels = res.data.data.channels
+      })
+    },
+    delArticle (articleId) {
+      this.$confirm('确定删除该文章吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        delArticlesById(articleId.toString()).then(res => {
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+          this.loadArticles(this.page)
+        })
+      }).catch(() => {
+        // this.$message({
+        //   type: 'info',
+        //   message: '已取消删除'
+        // })
       })
     }
 
@@ -190,6 +228,6 @@ export default {
   margin-bottom: 20px;
 }
 .el-icon-picture {
-  font-size: 100px;
+  font-size: 80px;
 }
 </style>

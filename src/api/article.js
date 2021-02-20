@@ -26,3 +26,12 @@ export const getChannels = () => {
     url: '/mp/v1_0/channels'
   })
 }
+/**
+ * 删除文章
+ */
+export const delArticlesById = articlesId => {
+  return request({
+    method: 'DELETE',
+    url: `/mp/v1_0/articles/${articlesId}`
+  })
+}
