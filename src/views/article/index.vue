@@ -59,6 +59,12 @@
         size="mini"
       >
         <el-table-column
+          label="序号"
+          type="index"
+          :index="indexMethod"
+          width="80">
+        </el-table-column>
+        <el-table-column
           prop="date"
           label="封面"
           width="80">
@@ -213,6 +219,9 @@ export default {
         //   message: '已取消删除'
         // })
       })
+    },
+    indexMethod (index) {
+      return (this.page - 1) * this.per_page + index + 1
     }
 
   }

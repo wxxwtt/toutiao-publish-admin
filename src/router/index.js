@@ -1,10 +1,11 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
-import Login from '@/views/login'
-import Layout from '@/views/layout'
-import Home from '@/views/home'
-import Article from '@/views/article'
+import Login from '@/views/login/'
+import Layout from '@/views/layout/'
+import Home from '@/views/home/'
+import Article from '@/views/article/'
+import Publish from '@/views/publish/'
 Vue.use(VueRouter)
 
 const routes = [
@@ -28,6 +29,12 @@ const routes = [
         path: '/article',
         name: 'article',
         component: Article,
+        meta: { auth: true }
+      },
+      {
+        path: '/publish',
+        name: 'publish',
+        component: Publish,
         meta: { auth: true }
       }
     ]
