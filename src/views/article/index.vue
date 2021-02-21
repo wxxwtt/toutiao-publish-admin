@@ -10,7 +10,7 @@
         <!-- /面包屑路径导航 -->
       </div>
       <!-- 数据筛选表单 -->
-      <el-form ref="form" :model="form" label-width="40px" size="mini">
+      <el-form ref="form" label-width="40px" size="mini">
         <el-form-item label="状态">
           <el-radio-group v-model="status">
             <el-radio :label="null">全部</el-radio>
@@ -135,16 +135,6 @@ export default {
   props: {},
   data () {
     return {
-      form: { // 筛选form表单
-        name: '',
-        region: '',
-        date1: '',
-        date2: '',
-        delivery: false,
-        type: [],
-        resource: '',
-        desc: ''
-      },
       articles: [], // 文章列表,
       articleStatus: [
         { status: 0, text: '草稿', type: 'info' }, // 0
