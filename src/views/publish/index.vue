@@ -9,12 +9,17 @@
         </el-breadcrumb>
         <!-- /面包屑路径导航 -->
       </div>
-      <el-form ref="form" :model="article" label-width="40px">
+      <el-form ref="article" :model="article" label-width="40px">
         <el-form-item label="标题">
           <el-input v-model="article.title"></el-input>
         </el-form-item>
         <el-form-item label="内容">
-          <el-input type="textarea" v-model="article.content"></el-input>
+          <el-tiptap
+            v-model="article.content"
+            :extensions="extensions"
+            lang="zh"
+            height="400"
+            placeholder="请输入文章内容"></el-tiptap>
         </el-form-item>
         <el-form-item label="封面">
           <el-radio-group v-model="article.cover.type">
@@ -34,8 +39,8 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onPublish(false)">发表</el-button>
-          <el-button @click="onPublish(true)">存入草稿</el-button>
+          <el-button type="primary" @click="onPublish(false)" :disabled="loading">发表</el-button>
+          <el-button @click="onPublish(true)" :disabled="loading">存入草稿</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -43,24 +48,48 @@
 </template>
 
 <script>
-import { getChannels } from '@/api/article'
-import { publishArticle } from '@/api/publish'
+import { getChannels, getArticleById } from '@/api/article'
+import { publishArticle, updateArticle } from '@/api/publish'
+import {
+  // ElementTiptapPlugin,
+  ElementTiptap,
+  Doc,
+  Text,
+  Paragraph,
+  Heading,
+  Bold,
+  Underline,
+  Italic,
+  Strike,
+  ListItem,
+  BulletList,
+  OrderedList,
+  Image,
+  Fullscreen
+} from 'element-tiptap'
 export default {
   name: 'PublishIndex',
-  components: {},
+  components: {
+    'el-tiptap': ElementTiptap
+  },
   props: {},
   data () {
     return {
-      form: {
-        name: '',
-        region: '',
-        date1: '',
-        date2: '',
-        delivery: false,
-        type: [],
-        resource: '',
-        desc: ''
-      },
+      extensions: [
+        new Doc(),
+        new Text(),
+        new Paragraph(),
+        new Heading({ level: 5 }),
+        new Bold({ bubble: true }), // render command-button in bubble menu.
+        new Underline({ bubble: true, menubar: false }), // render command-button in bubble menu but not in menubar.
+        new Italic(),
+        new Strike(),
+        new ListItem(),
+        new BulletList(),
+        new OrderedList(),
+        new Image(),
+        new Fullscreen()
+      ],
       channels: [],
       article: {
         title: '', // 文章标题
@@ -71,14 +100,18 @@ export default {
         },
         channel_id: null
       },
-      draft: false
-
+      draft: false, // 是否存为草稿
+      articleId: this.$route.query.articleId,
+      loading: false
     }
   },
   computed: {},
   watch: {},
   created () {
     this.loadChannels()
+    if (this.articleId) {
+      this.loadArticles()
+    }
   },
   mounted () {},
   methods: {
@@ -89,11 +122,35 @@ export default {
       })
     },
     onPublish (draft) {
-      publishArticle(this.article, draft).then(res => {
-        this.$message({
-          message: '发布成功',
-          type: 'success'
+      const { articleId } = this.article
+      this.loading = true
+      if (articleId) {
+        updateArticle(this.article, draft).then(res => {
+          this.$message({
+            message: '编辑成功',
+            type: 'success'
+          })
+          this.loading = false
+          this.$router.push({ name: 'article' })
+        }).catch(() => {
+          this.loading = false
         })
+      } else {
+        publishArticle(this.article, draft).then(res => {
+          this.$message({
+            message: '发布成功',
+            type: 'success'
+          })
+          this.loading = false
+          this.$router.push({ name: 'article' })
+        }).catch(() => {
+          this.loading = false
+        })
+      }
+    },
+    loadArticles () {
+      getArticleById(this.articleId).then(res => {
+        this.article = res.data.data
       })
     }
   }

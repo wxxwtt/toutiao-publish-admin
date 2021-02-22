@@ -7,6 +7,7 @@ import store from './store'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 
+import 'element-tiptap/lib/index.css'
 // 引入全局样式文件
 import './style/index.less'
 

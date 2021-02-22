@@ -4,13 +4,13 @@
    -->
   <el-menu
     class="nav-menu"
-    default-active="/"
     background-color="#002033"
     text-color="#fff"
     active-text-color="#ffd04b"
     router
     :collapse-transition="false"
     :collapse="collapse"
+    :default-active="$route.path"
   >
     <el-menu-item index="/">
       <i class="el-icon-s-home"></i>

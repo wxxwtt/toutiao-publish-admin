@@ -100,7 +100,11 @@
         <el-table-column
           label="操作">
           <template slot-scope="scope">
-            <el-button type="primary" icon="el-icon-edit" circle></el-button>
+            <el-button
+              type="primary"
+              icon="el-icon-edit"
+              circle
+              @click="$router.push({ name: 'publish', query: { articleId:scope.row.id } })"></el-button>
             <el-button
               type="danger"
               icon="el-icon-delete"

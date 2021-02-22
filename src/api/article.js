@@ -35,3 +35,12 @@ export const delArticlesById = articlesId => {
     url: `/mp/v1_0/articles/${articlesId}`
   })
 }
+/**
+ * 获取文章详情
+ */
+export const getArticleById = articlesId => {
+  return request({
+    method: 'GET',
+    url: `/mp/v1_0/articles/${articlesId}`
+  })
+}
