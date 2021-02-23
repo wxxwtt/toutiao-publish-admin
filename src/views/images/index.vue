@@ -1,8 +1,5 @@
 <template>
   <div class="image-container">
-    <img class="weui-media-box__thumb"
-      src="http://image-zhide-joyoung-test.digilinx.net.cn/joyoung_china/accessory/example/joyoung_china/2020/11/28/16065421157905644461.png"
-      onerror="this.src='http://toutiao-img.itheima.net/FpvJlYl9At72zvC5dbvsRSYZ0NFN'">
      <el-card class="box-card">
         <div slot="header" class="clearfix">
           <!-- 面包屑路径导航 -->
