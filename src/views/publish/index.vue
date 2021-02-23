@@ -9,11 +9,11 @@
         </el-breadcrumb>
         <!-- /面包屑路径导航 -->
       </div>
-      <el-form ref="article" :model="article" label-width="40px">
-        <el-form-item label="标题">
+      <el-form ref="article" :rules="publishRules" :model="article" label-width="60px">
+        <el-form-item label="标题" prop="title">
           <el-input v-model="article.title"></el-input>
         </el-form-item>
-        <el-form-item label="内容">
+        <el-form-item label="内容" prop="content">
           <el-tiptap
             v-model="article.content"
             :extensions="extensions"
@@ -29,7 +29,7 @@
             <el-radio :label="-1">自动</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="频道">
+        <el-form-item label="频道" prop="channel_id">
           <el-select v-model="article.channel_id" placeholder="请选择频道">
             <el-option
              v-for="item in channels"
@@ -49,7 +49,7 @@
 
 <script>
 import { getChannels, getArticleById } from '@/api/article'
-import { publishArticle, updateArticle } from '@/api/publish'
+import { publishArticle, updateArticle, uploadImage } from '@/api/publish'
 import {
   // ElementTiptapPlugin,
   ElementTiptap,
@@ -87,7 +87,15 @@ export default {
         new ListItem(),
         new BulletList(),
         new OrderedList(),
-        new Image(),
+        new Image({
+          uploadRequest: file => {
+            const fd = new FormData()
+            fd.append('image', file)
+            return uploadImage(fd).then(res => {
+              return res.data.data.url
+            })
+          }
+        }),
         new Fullscreen()
       ],
       channels: [],
@@ -102,7 +110,28 @@ export default {
       },
       draft: false, // 是否存为草稿
       articleId: this.$route.query.articleId,
-      loading: false
+      loading: false,
+      publishRules: {
+        title: [
+          { required: true, message: '请输入标题', trigger: 'blur' },
+          { min: 5, max: 30, message: '长度在 5 到 30 个字符', trigger: 'blur' }
+        ],
+        content: [
+          { required: true, message: '请输入文章内容', trigger: 'blur' },
+          {
+            validator: (rule, value, callback) => {
+              if (value === '' || value === '<p></p>') {
+                callback(new Error('请输入文章内容'))
+              } else {
+                callback()
+              }
+            }
+          }
+        ],
+        channel_id: [
+          { required: true, message: '请选择频道' }
+        ]
+      }
     }
   },
   computed: {},
@@ -122,31 +151,37 @@ export default {
       })
     },
     onPublish (draft) {
-      const { articleId } = this.article
-      this.loading = true
-      if (articleId) {
-        updateArticle(this.article, draft).then(res => {
-          this.$message({
-            message: '编辑成功',
-            type: 'success'
-          })
-          this.loading = false
-          this.$router.push({ name: 'article' })
-        }).catch(() => {
-          this.loading = false
-        })
-      } else {
-        publishArticle(this.article, draft).then(res => {
-          this.$message({
-            message: '发布成功',
-            type: 'success'
-          })
-          this.loading = false
-          this.$router.push({ name: 'article' })
-        }).catch(() => {
-          this.loading = false
-        })
-      }
+      this.$refs.article.validate((valid) => {
+        if (valid) {
+          const { articleId } = this.article
+          this.loading = true
+          if (articleId) {
+            updateArticle(this.article, draft).then(res => {
+              this.$message({
+                message: '编辑成功',
+                type: 'success'
+              })
+              this.loading = false
+              this.$router.push({ name: 'article' })
+            }).catch(() => {
+              this.loading = false
+            })
+          } else {
+            publishArticle(this.article, draft).then(res => {
+              this.$message({
+                message: '发布成功',
+                type: 'success'
+              })
+              this.loading = false
+              this.$router.push({ name: 'article' })
+            }).catch(() => {
+              this.loading = false
+            })
+          }
+        } else {
+          return false
+        }
+      })
     },
     loadArticles () {
       getArticleById(this.articleId).then(res => {
