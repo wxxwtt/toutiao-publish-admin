@@ -7,6 +7,7 @@ import Home from '@/views/home/'
 import Article from '@/views/article/'
 import Publish from '@/views/publish/'
 import Images from '@/views/images/'
+import Comment from '@/views/comment/'
 
 Vue.use(VueRouter)
 
@@ -43,6 +44,12 @@ const routes = [
         path: '/images',
         name: 'image',
         component: Images,
+        meta: { auth: true }
+      },
+      {
+        path: '/comment',
+        name: 'comment',
+        component: Comment,
         meta: { auth: true }
       }
     ]
