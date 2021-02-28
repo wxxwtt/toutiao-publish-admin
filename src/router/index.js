@@ -8,6 +8,7 @@ import Article from '@/views/article/'
 import Publish from '@/views/publish/'
 import Images from '@/views/images/'
 import Comment from '@/views/comment/'
+import Settings from '@/views/settings/'
 
 Vue.use(VueRouter)
 
@@ -50,6 +51,12 @@ const routes = [
         path: '/comment',
         name: 'comment',
         component: Comment,
+        meta: { auth: true }
+      },
+      {
+        path: '/settings',
+        name: 'settings',
+        component: Settings,
         meta: { auth: true }
       }
     ]

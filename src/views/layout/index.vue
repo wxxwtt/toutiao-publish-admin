@@ -30,7 +30,7 @@ export default {
   props: {},
   data () {
     return {
-      isCollapse: false
+      isCollapse: false // 侧边栏的收起状态
     }
   },
   computed: {},
