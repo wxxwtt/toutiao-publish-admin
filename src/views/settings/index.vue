@@ -29,13 +29,18 @@
             </el-form-item>
 
             <el-form-item>
-              <el-button type="primary" @click="onSubmit">保存</el-button>
+              <el-button type="primary"
+                :loading="saveLoading"
+                @click="onUpdataUser">保存</el-button>
             </el-form-item>
           </el-form>
         </el-col>
         <el-col :span="8">
-          <el-image style="width: 200px; height: 200px" :src="user.photo" :fit="fit"></el-image>
-          <p>点击修改头像</p>
+         <div @click="onAvatarClick">
+            <el-image style="width: 200px; height: 200px" :src="user.photo" fit="cover"></el-image>
+              <p>点击修改头像</p>
+            <input ref="image" @change="onImageChange" type="file" id="image" hidden>
+         </div>
         </el-col>
       </el-row>
     </el-card>
@@ -43,7 +48,9 @@
 </template>
 
 <script>
-import { getUserInfo } from '@/api/user'
+import { getUserInfo, updataInfo, updataAvator } from '@/api/user'
+import globalBus from '@/utils/global-bus'
+
 export default {
   name: 'SettingIndex',
   components: {},
@@ -59,7 +66,8 @@ export default {
         resource: '',
         desc: ''
       },
-      user: {}
+      user: {},
+      saveLoading: false
     }
   },
   computed: {},
@@ -69,12 +77,34 @@ export default {
   },
   mounted () {},
   methods: {
-    onSubmit () {
-      console.log('submit!')
+    onUpdataUser () {
+      this.saveLoading = true
+      updataInfo(this.user).then(res => {
+        this.saveLoading = false
+        globalBus.$emit('updataUser', this.user)
+
+        this.$message({
+          message: '修改成功',
+          type: 'success'
+        })
+      })
     },
     loadUser () {
       getUserInfo().then(res => {
         this.user = res.data.data
+      })
+    },
+    onAvatarClick () {
+      this.$refs.image.click()
+      // console.log(this.$refs.image)
+    },
+    onImageChange () {
+      const file = this.$refs.image.files[0]
+      const fd = new FormData()
+      fd.append('photo', file)
+      updataAvator(fd).then(res => {
+        this.user.photo = res.data.data.photo
+        globalBus.$emit('updataUser', this.user)
       })
     }
   }

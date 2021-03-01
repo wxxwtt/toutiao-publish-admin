@@ -21,6 +21,7 @@
 
 <script>
 import { getUserInfo } from '@/api/user'
+import globalBus from '@/utils/global-bus'
 export default {
   name: 'AppHeader',
   components: {},
@@ -38,6 +39,11 @@ export default {
   watch: {},
   created () {
     this.loadUserInfo()
+    globalBus.$on('updataUser', data => {
+      const { name, photo } = data
+      this.user.name = name
+      this.user.photo = photo
+    })
   },
   mounted () {},
   methods: {

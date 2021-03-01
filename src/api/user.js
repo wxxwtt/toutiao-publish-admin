@@ -21,3 +21,19 @@ export const getUserInfo = params => {
     params
   })
 }
+// 编辑用户信息
+export const updataInfo = data => {
+  return request({
+    method: 'PATCH',
+    url: '/mp/v1_0/user/profile',
+    data
+  })
+}
+// 编辑用户头像
+export const updataAvator = data => {
+  return request({
+    method: 'PATCH',
+    url: '/mp/v1_0/user/photo',
+    data
+  })
+}

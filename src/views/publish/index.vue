@@ -28,6 +28,14 @@
             <el-radio :label="0">无图</el-radio>
             <el-radio :label="-1">自动</el-radio>
           </el-radio-group>
+          <template v-if="article.cover.type > 0">
+            <div class="upload-image-content">
+              <UploadImage
+                v-for="(image, index) in article.cover.type"
+                :key="image"
+                v-model="article.cover.images[index]" />
+            </div>
+          </template>
         </el-form-item>
         <el-form-item label="频道" prop="channel_id">
           <el-select v-model="article.channel_id" placeholder="请选择频道">
@@ -44,6 +52,7 @@
         </el-form-item>
       </el-form>
     </el-card>
+
   </div>
 </template>
 
@@ -67,10 +76,12 @@ import {
   Image,
   Fullscreen
 } from 'element-tiptap'
+import UploadImage from './components/upload-image'
 export default {
   name: 'PublishIndex',
   components: {
-    'el-tiptap': ElementTiptap
+    'el-tiptap': ElementTiptap,
+    UploadImage
   },
   props: {},
   data () {
@@ -103,7 +114,7 @@ export default {
         title: '', // 文章标题
         content: '', // 文章内容
         cover: { // 文章封面
-          type: 0, // 封面类型 -1:自动，0-无图，1-1张，3-3张
+          type: 1, // 封面类型 -1:自动，0-无图，1-1张，3-3张
           images: [] // 封面图片的地址
         },
         channel_id: null
@@ -192,4 +203,11 @@ export default {
 }
 </script>
 
-<style scoped lang="less"></style>
+<style scoped lang="less">
+.upload-image-content {
+  width: 60%;
+  display: flex;
+  justify-content: space-between;
+}
+
+</style>
